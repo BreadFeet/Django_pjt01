@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>
+
+        function getData(year) {
+            $.ajax({
+                url: 'chart4s',
+                data: {year: year},
+                type: 'get',
+                datatype: 'html',
+                success: function(html) {
+                    alert(html);
+                    $('body').empty();
+                    $('body').append(html);  // ajax 오류나는데 해결하고 싶다....
+                }
+            });
+        };
+
+        $(document).ready(function() {
+            $('button').click(function() {
+                year = $('input[name="year"]').val();
+                //alert(year)
+                getData(year);
+            });
+        });
+
+    </script>
+</head>
+
+
+<body>
+    <h1>Chart 4</h1>
+    <!--지도 168쪽-->
+    <!--2007~2017년까지 지정한 연도를 전송하면 해당 연도 정보 표시-->
+<!--    <form action="chart4s" method="get">-->
+    Choose the year of interest between 2007 and 2017. <input type="text" name="year"><button>Click</button>
+<!--    </form>-->
+
+    <section id="map"></section>
+</body>
+</html>

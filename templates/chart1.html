@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chart1</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>
+        function display(da) {
+            alert(da.title)
+            alert(da.data)
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'area'
+                },
+                title: {
+                    text: 'Population Transfer from City ' + da.title
+                },
+                subtitle: {
+                    text: 'Source: Highcharts.com'
+                },
+                xAxis: {
+                    allowDecimals: false,
+                    labels: {
+                        formatter: function () {
+                            return this.value;
+                        }
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: 'Population'
+                    },
+                    labels: {
+                        formatter: function () {
+                            return this.value + '명';
+                        }
+                    }
+                },
+                tooltip: {
+                    pointFormat: '{series.name} had stockpiled <b>{point.y:,.0f}</b><br/>warheads in {point.x}'
+                },
+                plotOptions: {
+                    area: {
+                        pointStart: 1970,
+                        marker: {
+                            enabled: false,
+                            symbol: 'circle',
+                            radius: 2,
+                            states: {
+                                hover: {
+                                    enabled: true
+                                }
+                            }
+                        }
+                    }
+                },
+                series: da.data
+            });
+        };
+
+
+        function getData(city) {
+            $.ajax({
+                url: 'chart1s',
+                data: {from: city},
+                type: 'get',
+                datatype: 'json',
+                success: function(data) {
+                    //alert(JSON.stringify(data))
+                    display(data);
+                }
+            });
+        };
+
+        $(document).ready(function() {
+             $('button').click(function() {
+                frm = $('#from').val()
+                //alert(frm);            // val() 함수가 제대로 작동하는지 확인
+                getData(frm);
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Chart 1</h1>
+    <!--Highcharts 130쪽-->
+    <!--전출지: 서울시, 경기도 중 선택 / 전입지: 충청남도, 경상북도, 강원도, 전라남도-->
+    <form>
+        <label>Choose the city from: </label>
+        <select id="from" name="from">
+            <option value="서울특별시">서울특별시</option>    <!--value: name에 전달되는 값-->
+            <option value="경기도">경기도</option>
+        </select>
+        <button type="reset">Select</button>  <!--선택내용은 reset 되지만 js에 의해 클릭이벤트는 작동한다-->
+    </form>
+    <div id="container"></div>
+</body>
+</html>

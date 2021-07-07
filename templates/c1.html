@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>C1 page</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>
+      function display(da) {
+        Highcharts.chart('container', {
+          title: {
+              text: 'Solar Employment Growth by Sector, 2010-2016'
+          },
+          subtitle: {
+              text: 'Source: thesolarfoundation.com'
+          },
+          yAxis: {
+              title: {
+                  text: 'Number of Employees'
+              }
+          },
+          xAxis: {
+              accessibility: {
+                  rangeDescription: 'Range: 2010 to 2017'
+              }
+          },
+          legend: {
+              layout: 'vertical',
+              align: 'right',
+              verticalAlign: 'middle'
+          },
+          plotOptions: {
+              series: {
+                  label: {
+                      connectorAllowed: false
+                  },
+                  pointStart: 2010
+              }
+          },
+          series: da,
+          responsive: {
+              rules: [{
+                  condition: {
+                      maxWidth: 500
+                  },
+                  chartOptions: {
+                      legend: {
+                          layout: 'horizontal',
+                          align: 'center',
+                          verticalAlign: 'bottom'
+                      }
+                  }
+              }]
+          }
+      });
+      };
+
+      function getData() {
+        $.ajax({
+            url: 'c1data',
+            type: 'get',
+            datatype: 'json',
+            success: function(data) {
+                display(data);
+            }
+        })
+      };
+
+      $(document).ready(function() {
+        getData();
+      });
+
+    </script>
+</head>
+
+<body>
+    <h1> C1 Page </h1>
+    <div id='container'></div>
+</body>
+</html>

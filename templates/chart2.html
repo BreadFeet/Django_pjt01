@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>
+        function display(da) {
+            alert(da.xaxis)
+            Highcharts.chart('container', {
+                chart: {
+                    zoomType: 'xy'
+                },
+                title: {
+                    text: 'Total Electric Power Generation in North Korea'
+                },
+                subtitle: {
+                    text: 'Source: Highcharts.com'
+                },
+                xAxis: [{
+                    categories: da.xaxis,
+                    crosshair: true
+                }],
+                yAxis: [{ // Primary yAxis
+                    labels: {
+                        format: '{value}kWh',
+                        style: {
+                            color: Highcharts.getOptions().colors[1]
+                        }
+                    },
+                    title: {
+                        text: '발전량',
+                        style: {
+                            color: Highcharts.getOptions().colors[1]
+                        }
+                    }
+                }, { // Secondary yAxis
+                    title: {
+                        text: '전년대비 증감률',
+                        style: {
+                            color: Highcharts.getOptions().colors[0]
+                        }
+                    },
+                    labels: {
+                        format: '{value} %',
+                        style: {
+                            color: Highcharts.getOptions().colors[0]
+                        }
+                    },
+                    opposite: true
+                }],
+                tooltip: {
+                    shared: true
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'left',
+                    x: 120,
+                    verticalAlign: 'top',
+                    y: 100,
+                    floating: true,
+                    backgroundColor:
+                        Highcharts.defaultOptions.legend.backgroundColor || // theme
+                        'rgba(255,255,255,0.25)'
+                },
+                series: [{
+                    name: '수력',
+                    type: 'column',
+                    yAxis: 1,
+                    data: da.water,
+                    tooltip: {
+                        valueSuffix: ' kWh'
+                    }
+
+                }, {
+                    name: '화력',
+                    type: 'column',
+                    yAxis: 1,
+                    data: da.fire,
+                    tooltip: {
+                        valueSuffix: ' kWh'
+                    }
+
+                }, {
+                    name: '전년대비 증감률',
+                    type: 'spline',
+                    data: da.rate,
+                    tooltip: {
+                        valueSuffix: '%'
+                    }
+                }]
+            });
+        };
+
+
+        function getData(start, end) {
+            $.ajax({
+                url: 'chart2s',
+                data: {start: start, end: end},
+                type: 'get',
+                datatype: 'json',
+                success: function(data) {
+                    display(data);
+                }
+            });
+        };
+
+
+        $(document).ready(function() {
+           $('button').click(function() {
+                start = $('input[name="start"]').val();
+                end = $('input[name="end"]').val();
+                //alert(start)
+                //alert(typeof end)      // type: string
+                getData(start, end);
+           });
+        });
+
+    </script>
+</head>
+
+
+<body>
+    <h1>Chart 2</h1>
+    <!--Highcharts 136쪽-->
+    <!--시작 연도, 끝 연도를 선택하여 해당 기간의 데이터를 표시-->
+    1. Choose the start year inclusive of 1990. <input type="text" name="start"><br>
+    2. Choose the end year inclusive of 2017. <input type="text" name="end">
+    <button type="button">Click</button>
+    <div id="container"></div>
+</body>
+</html>
