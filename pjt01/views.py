@@ -49,9 +49,10 @@ def chart1s(request):
 def chart2s(request):
     start = request.GET['start']
     end = request.GET['end']
+    con = request.GET['con']
     # print(start, end)
     # 분석결과 받기
-    result = wsAnalysis().P136(start, end)
+    result = wsAnalysis().P136(start, end, con)
     # print(result)
     return HttpResponse(json.dumps(result), content_type='application/json')
 

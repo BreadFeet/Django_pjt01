@@ -5,7 +5,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import folium
-from config.settings import DATA_DIR, TEMPLATES
+from config.settings import DATA_DIR, TEMPLATES, STATICFILES_DIRS
 
 
 class wsAnalysis:
@@ -40,50 +40,94 @@ class wsAnalysis:
         return result
 
 #########################################################################################################
-    def P136(self, start, end):    # 시작/끝 연도 모두 문자열로 들어옴. 컬럼명도 string
+    def P136(self, start, end, con):    # 시작/끝/나라명 연도 모두 문자열로 들어옴. 컬럼명도 string
         df = pd.read_excel(DATA_DIR[0] + '/elec_energy.xlsx')
         # print(df)
-        north = df.iloc[5:9]
-        # print(north)
-        north.drop('전력량 (억㎾h)', axis=1, inplace=True)
-        north.rename(columns={'발전 전력별':'발전'}, inplace=True)
-        north.set_index('발전', inplace=True)
-        north.drop('원자력', axis=0, inplace=True)
-        # print(north)
-        # print(north.columns)      # 연도: 문자열
 
-        # 입력받은 start, end에 따라 데이터 추출하기
+        if con == 'nk':
+            kr = df.iloc[5:9]
+            # print(kr)
+            title = 'North Korea'
+        elif con == 'sk':
+            kr = df.iloc[:5]
+            title = 'South Korea'
+        # print(kr)
+        # print(type(kr.loc[4, '1990']))    # '-' 결측치의 데이터 타입 확인: string
+        kr.replace('-', 0, inplace=True)
+        # print(kr)
+
+        kr.drop('전력량 (억㎾h)', axis=1, inplace=True)
+        kr.rename(columns={'발전 전력별':'발전'}, inplace=True)
+        kr.set_index('발전', inplace=True)
+        if con == 'nk':
+            kr.drop('원자력', axis=0, inplace=True)
+        # print(kr)
+        # print(kr.columns)      # 연도: 문자열
+
+        # 입력받은 start, end에 따라 데이터 추출하기 - 북한만 있을 때
         # 수력 데이터
-        water = north.loc['수력', start:end].to_list()
+        # water = kr.loc['수력', start:end].to_list()
         # print(water)
         # 화력 데이터
-        fire = north.loc['화력', start:end].to_list()
+        # fire = kr.loc['화력', start:end].to_list()
+
         # x축 데이터
-        xaxis = list(map(int, range(int(start), int(end)+1)))
+        xaxis = list(map(int, range(int(start), int(end) + 1)))
 
         # 증감률 계산
-        t = north.T
+        t = kr.T
         # print(t)
         t['전년합계'] = t['합계'].shift(periods=1, axis=0)
         # print(t)
         t['증감률'] = ((t['합계']-t['전년합계'])/t['전년합계']) * 100
         # print(t)
-        # NaN은 0으로 지정
+        # NaN은 0으로 지정 - NaN인 상태이면 highcharts에서 인식 못해서 그래프 못 그림
         t.fillna(0, inplace=True)
         # print(t)
         # 지정한 start, end만 추출
         rate = t.loc[start:end, '증감률'].to_list()
         # print(rate)
 
-        # Highcharts에 보낼 json 만들기
-        result = {
-            'xaxis': xaxis,
-            'water': water,
-            'fire': fire,
-            'rate': rate
-        }
+        # # Highcharts에 보낼 json 만들기 - 북한만 있었을 때
+        # result = {
+        #     'xaxis': xaxis,
+        #     'water': water,
+        #     'fire': fire,
+        #     'rate': rate
+        # }
 
+        # 발전 종류(index)별 데이터를 순서대로 모음
+        amount = []
+        for src in kr.index[1:]:
+            amount.append(kr.loc[src, start:end].to_list())
+
+        # Highcharts에 보낼 json 만들기 - 남북한 모두 있을 때
+        data = []
+        # data에 발전량 추가
+        for i in range(len(kr.index[1:])):
+            dic = {}
+            dic['name'] = kr.index[1:][i]
+            dic['type'] = 'column'
+            dic['yAxis'] = 1               # line: 0, bar: 1
+            dic['data'] = amount[i]
+            dic['tooltip'] = {'valueSuffix':' kWh'}
+            data.append(dic)
+        # data에 증감률 추가
+        dic = {}
+        dic['name'] = '전년대비 증감률'
+        dic['type'] = 'spline'
+        dic['data'] = rate
+        dic['tooltip'] = {'valueSuffix':'%'}
+        data.append(dic)
+
+        result = {
+            'title': title,
+            'xaxis': xaxis,
+            'data': data
+        }
+        print(result)
         return result
+
 
 ################################################################################################
 
@@ -143,4 +187,4 @@ class wsAnalysis:
 
 
 if __name__ == '__main__':
-    wsAnalysis().P168(2010)
+    wsAnalysis().P136('1995', '2005', 'sk')

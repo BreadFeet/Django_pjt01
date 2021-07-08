@@ -11,13 +11,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script>
         function display(da) {
-            alert(da.xaxis)
+            alert(JSON.stringify(da.data))
             Highcharts.chart('container', {
                 chart: {
                     zoomType: 'xy'
                 },
                 title: {
-                    text: 'Total Electric Power Generation in North Korea'
+                    text: 'Total Electric Power Generation in' + da.title
                 },
                 subtitle: {
                     text: 'Source: Highcharts.com'
@@ -26,28 +26,28 @@
                     categories: da.xaxis,
                     crosshair: true
                 }],
-                yAxis: [{ // Primary yAxis
+                yAxis: [{ // Line graph axis
                     labels: {
-                        format: '{value}kWh',
+                        format: '{value}%',
                         style: {
                             color: Highcharts.getOptions().colors[1]
                         }
                     },
                     title: {
-                        text: '발전량',
+                        text: '전년대비 증감률',
                         style: {
                             color: Highcharts.getOptions().colors[1]
                         }
                     }
-                }, { // Secondary yAxis
+                }, { // bar graph axis
                     title: {
-                        text: '전년대비 증감률',
+                        text: '발전량',
                         style: {
                             color: Highcharts.getOptions().colors[0]
                         }
                     },
                     labels: {
-                        format: '{value} %',
+                        format: '{value} kWh',
                         style: {
                             color: Highcharts.getOptions().colors[0]
                         }
@@ -68,40 +68,15 @@
                         Highcharts.defaultOptions.legend.backgroundColor || // theme
                         'rgba(255,255,255,0.25)'
                 },
-                series: [{
-                    name: '수력',
-                    type: 'column',
-                    yAxis: 1,
-                    data: da.water,
-                    tooltip: {
-                        valueSuffix: ' kWh'
-                    }
-
-                }, {
-                    name: '화력',
-                    type: 'column',
-                    yAxis: 1,
-                    data: da.fire,
-                    tooltip: {
-                        valueSuffix: ' kWh'
-                    }
-
-                }, {
-                    name: '전년대비 증감률',
-                    type: 'spline',
-                    data: da.rate,
-                    tooltip: {
-                        valueSuffix: '%'
-                    }
-                }]
+                series: da.data
             });
         };
 
 
-        function getData(start, end) {
+        function getData(start, end, con) {
             $.ajax({
                 url: 'chart2s',
-                data: {start: start, end: end},
+                data: {start: start, end: end, con: con},
                 type: 'get',
                 datatype: 'json',
                 success: function(data) {
@@ -115,9 +90,11 @@
            $('button').click(function() {
                 start = $('input[name="start"]').val();
                 end = $('input[name="end"]').val();
-                //alert(start)
+                con = $('input[name="con"]:checked').val();
+                //alert(start + ' ' + end)
+                alert(con)
                 //alert(typeof end)      // type: string
-                getData(start, end);
+                getData(start, end, con);
            });
         });
 
@@ -130,8 +107,12 @@
     <!--Highcharts 136쪽-->
     <!--시작 연도, 끝 연도를 선택하여 해당 기간의 데이터를 표시-->
     1. Choose the start year inclusive of 1990. <input type="text" name="start"><br>
-    2. Choose the end year inclusive of 2017. <input type="text" name="end">
+    2. Choose the end year inclusive of 2017. <input type="text" name="end"><br>
+    3. Choose one of the countries.
+    <input type="radio" name="con" value="nk"> North Korea
+    <input type="radio" name="con" value="sk"> South Korea
     <button type="button">Click</button>
+
     <div id="container"></div>
 </body>
 </html>
