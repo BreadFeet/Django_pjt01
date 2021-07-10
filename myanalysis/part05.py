@@ -17,7 +17,7 @@ auto.columns = ['mpg', 'cylinders', 'displacement', 'hp', 'weight', 'acceleratio
 ttn = sns.load_dataset('titanic')
 col = pd.read_excel(DATA_DIR[0] + '/col_location.xlsx', index_col=0)     # 서울 대학교 위치정보
 ggd = pd.read_excel(DATA_DIR[0] + '/gg_pop.xlsx')        # 경기도 인구 정보
-stock = pd.read_csv(DATA_DIR[0] + '/stock-data.csv')
+stock = pd.read_csv(DATA_DIR[0] + '/stock.csv')
 
 ## 데이터 전처리 학습 ###############################################################################################
 
