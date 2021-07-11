@@ -271,16 +271,16 @@ class P53:
 
 
         # 6. 오늘과 index 날짜 사이의 시간 간격 계산------------------------------------------------
-        today = pd.to_datetime('2021-07-08')
-        stock['time_delta'] = today - stock.index     # datetime 하나에서 datetime series를 뺌
+        today = pd.to_datetime('2021-07-08')     # type: Timestamp
+        stock['time_delta'] = today - stock.index     # Timestamp에서 datetime series를 뺌
+        # print(today-stock.index)             # TimedeltaIndex, dtype: timedelta64
         # print(stock)
         stock.set_index('time_delta', inplace=True)
         # print(stock)
-        # print(stock.index)               # TimedeltaIndex, dtype: timedelta64
 
-        # print(stock.loc['1130 days'])        # indexing
-        diff = stock['1120 days':'1125 days']         # slicing
-        # print(diff)
+        # print(stock.loc['1130 days'])          # indexing
+        print(stock['1120 days':'1125 days'])         # slicing
+
 
 
 if __name__ == '__main__':
